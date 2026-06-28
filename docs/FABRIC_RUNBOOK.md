@@ -2,6 +2,12 @@
 
 Este repositorio contiene el codigo fuente necesario para ejecutar la demo en Microsoft Fabric. No incluye mocks locales ni scripts de despliegue.
 
+Para la preparacion detallada antes de grabar, usa primero:
+
+```text
+docs/PRE_RECORDING_DEPLOYMENT.md
+```
+
 ## 1. Preparacion del workspace
 
 Crear o reutilizar estos artefactos en Fabric:
@@ -206,4 +212,3 @@ Uso previsto:
 - Modelo semantico actualizado.
 - Data Agent creado y probado.
 - Rayfin preparado si la preview esta disponible.
-
