@@ -1,0 +1,5 @@
+App inteligente de retail multicanal con datos, scoring e IA en 40 minutos
+
+Partiremos de una cadena ficticia de retail omnicanal con un problema muy reconocible: sus datos de clientes, ventas, devoluciones y stock están repartidos entre varios sistemas y tienen problemas de calidad. En esta sesión veremos cómo convertir ese caos en una app inteligente que ayude a tomar decisiones.
+
+En 40 minutos recorreremos el flujo completo: ingesta de datos, perfilado de calidad, limpieza, fact table integrada, features de clientes y productos, scoring básico y una app de exploración. Cerraremos incorporando IA para hacer preguntas en lenguaje natural y generar recomendaciones accionables.
