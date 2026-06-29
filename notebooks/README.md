@@ -9,13 +9,6 @@ Importa en Microsoft Fabric los ficheros `.ipynb`:
 03_features_scoring_semantic.ipynb
 ```
 
-Los `.py` con el mismo nombre contienen las mismas celdas separadas por:
-
-```python
-# COMMAND ----------
-```
-
-Se mantienen como fuente versionable y como respaldo si prefieres copiar celdas manualmente.
 
 Antes de ejecutar:
 
