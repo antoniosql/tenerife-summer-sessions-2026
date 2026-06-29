@@ -47,6 +47,7 @@ def parse_bool(col: Column) -> Column:
 
 def parse_multiformat_timestamp(col: Column) -> Column:
     value = normalize_text(col)
+
     spanish_months = {
         "enero": "01",
         "febrero": "02",
@@ -62,21 +63,31 @@ def parse_multiformat_timestamp(col: Column) -> Column:
         "noviembre": "11",
         "diciembre": "12",
     }
-    month_pattern = "|".join(spanish_months)
+
     spanish = F.lower(value)
     for name, number in spanish_months.items():
         spanish = F.regexp_replace(spanish, name, number)
-    spanish = F.regexp_replace(spanish, rf"^(\d{{1,2}}) de ({month_pattern}|\d{{2}}) de (\d{{4}})(.*)$", "$1/$2/$3$4")
+    spanish = F.regexp_replace(
+        spanish,
+        r"^(\d{1,2}) de ([a-záéíóú]+|\d{2}) de (\d{4})(.*)$",
+        "$1/$2/$3$4",
+    )
+
+    def parse_if(source: Column, pattern: str, fmt: str) -> Column:
+        return F.when(source.rlike(pattern), F.to_timestamp(source, fmt))
+
     return F.coalesce(
-        F.to_timestamp(value, "yyyy-MM-dd HH:mm:ss"),
-        F.to_timestamp(value, "yyyy-MM-dd"),
-        F.to_timestamp(value, "dd/MM/yyyy HH:mm:ss"),
-        F.to_timestamp(value, "dd/MM/yyyy HH:mm"),
-        F.to_timestamp(value, "dd/MM/yyyy"),
-        F.to_timestamp(value, "dd/MM/yy HH:mm"),
-        F.to_timestamp(value, "dd/MM/yy"),
-        F.to_timestamp(spanish, "d/MM/yyyy HH:mm"),
-        F.to_timestamp(spanish, "d/MM/yyyy"),
+        parse_if(value, r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", "yyyy-MM-dd HH:mm:ss"),
+        parse_if(value, r"^\d{4}-\d{2}-\d{2}$", "yyyy-MM-dd"),
+        parse_if(value, r"^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}$", "yyyy/MM/dd HH:mm:ss"),
+        parse_if(value, r"^\d{4}/\d{2}/\d{2}$", "yyyy/MM/dd"),
+        parse_if(value, r"^\d{1,2}/\d{1,2}/\d{4} \d{2}:\d{2}:\d{2}$", "d/M/yyyy HH:mm:ss"),
+        parse_if(value, r"^\d{1,2}/\d{1,2}/\d{4} \d{2}:\d{2}$", "d/M/yyyy HH:mm"),
+        parse_if(value, r"^\d{1,2}/\d{1,2}/\d{4}$", "d/M/yyyy"),
+        parse_if(value, r"^\d{1,2}/\d{1,2}/\d{2} \d{2}:\d{2}$", "d/M/yy HH:mm"),
+        parse_if(value, r"^\d{1,2}/\d{1,2}/\d{2}$", "d/M/yy"),
+        parse_if(spanish, r"^\d{1,2}/\d{1,2}/\d{4} \d{2}:\d{2}$", "d/M/yyyy HH:mm"),
+        parse_if(spanish, r"^\d{1,2}/\d{1,2}/\d{4}$", "d/M/yyyy"),
     )
 
 

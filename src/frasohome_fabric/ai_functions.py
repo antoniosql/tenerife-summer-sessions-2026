@@ -7,6 +7,8 @@ finite reference data where the canonical answer is known.
 
 from __future__ import annotations
 
+import synapse.ml.spark.aifunc as aifunc # noqa: F401
+
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
