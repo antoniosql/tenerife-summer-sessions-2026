@@ -1,3 +1,7 @@
 activeProfile: default
 profiles:
-  default: {}
+  default:
+    semanticModels:
+      frasohomeModel:
+        workspaceId: 24863d42-e994-4e2c-8368-dee6aad6667a
+        itemId: 754fff03-2c25-4454-ba29-11582782aa21

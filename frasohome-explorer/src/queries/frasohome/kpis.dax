@@ -1,0 +1,11 @@
+EVALUATE
+CALCULATETABLE(
+    ROW(
+        "Ventas netas", [Ventas netas],
+        "Margen bruto", [Margen bruto],
+        "Tasa devolucion", [Tasa devolución],
+        "Clientes en riesgo", [Clientes en riesgo]
+    ),
+    __CHANNEL_FILTER__,
+    __CATEGORY_FILTER__
+)

@@ -18,14 +18,24 @@ type CustomerRisk = {
 };
 
 type Props = {
+  category: string;
+  channel: string;
   kpis: Kpi[];
   customers: CustomerRisk[];
   onAddToCampaign: (customer: CustomerRisk) => Promise<void>;
+  onCategoryChange: (category: string) => void;
+  onChannelChange: (channel: string) => void;
 };
 
-export function App({ kpis, customers, onAddToCampaign }: Props) {
-  const [channel, setChannel] = useState("TODOS");
-  const [category, setCategory] = useState("TODAS");
+export function App({
+  category,
+  channel,
+  kpis,
+  customers,
+  onAddToCampaign,
+  onCategoryChange,
+  onChannelChange,
+}: Props) {
   const [selected, setSelected] = useState<string[]>([]);
 
   const visibleCustomers = useMemo(() => {
@@ -49,12 +59,12 @@ export function App({ kpis, customers, onAddToCampaign }: Props) {
         </div>
         <div className="filters" aria-label="Filtros">
           <Filter size={18} />
-          <select aria-label="Canal" value={channel} onChange={(event) => setChannel(event.target.value)}>
+          <select aria-label="Canal" value={channel} onChange={(event) => onChannelChange(event.target.value)}>
             <option>TODOS</option>
             <option>POS</option>
             <option>ONLINE</option>
           </select>
-          <select aria-label="Categoria" value={category} onChange={(event) => setCategory(event.target.value)}>
+          <select aria-label="Categoria" value={category} onChange={(event) => onCategoryChange(event.target.value)}>
             <option>TODAS</option>
             <option>Decoracion</option>
             <option>Iluminacion</option>

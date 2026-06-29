@@ -1,13 +1,28 @@
-//-----------------------------------------------------------------------
-// <copyright company="Microsoft Corporation">
-//        Copyright (c) Microsoft Corporation.  All rights reserved.
-//        Licensed under the MIT license. See LICENSE file in the project root for full license information.
-// </copyright>
-//-----------------------------------------------------------------------
-
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import App from "@/App";
+
+vi.mock("@/hooks/use-semantic-model-query", () => ({
+    useSemanticModelQuery: () => ({
+        data: {
+            status: "success",
+            table: {
+                columns: [
+                    { name: "[Ventas netas]" },
+                    { name: "[Margen bruto]" },
+                    { name: "[Tasa devolucion]" },
+                    { name: "[Clientes en riesgo]" },
+                ],
+                rows: [[1602458.02, 564797.06, 0.0798547721, 116]],
+            },
+            fromCache: false,
+            cachedAt: undefined,
+        },
+        error: undefined,
+        isLoading: false,
+        refetch: vi.fn(),
+    }),
+}));
 
 describe("App", () => {
     it("renders without throwing", () => {
@@ -17,6 +32,14 @@ describe("App", () => {
     it("mounts content into the document", () => {
         render(<App />);
         expect(document.body).not.toBeEmptyDOMElement();
+    });
+
+    it("renders semantic model KPI values", () => {
+        render(<App />);
+
+        expect(screen.getByText("Ventas netas")).toBeInTheDocument();
+        expect(screen.getByText("116")).toBeInTheDocument();
+        expect(screen.getByText("8 %")).toBeInTheDocument();
     });
 
     it("filters customers by channel and category", () => {

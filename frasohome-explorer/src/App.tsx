@@ -1,5 +1,9 @@
+import { useState } from "react";
+
 import { App as FrasoHomeApp } from "./app/App";
+import { useSemanticModelQuery } from "./hooks/use-semantic-model-query";
 import { getRayfinClient } from "./lib/rayfin-client";
+import { frasohomeKpis, KPI_COLUMNS } from "./queries";
 
 import "./app/styles.css";
 
@@ -12,13 +16,6 @@ type CustomerRisk = {
   tasa_devolucion_cliente: number;
   categoria_preferida?: string;
 };
-
-const kpis = [
-  { label: "Ventas netas", value: "1,79 M EUR", detail: "Gold fact transacciones" },
-  { label: "Margen bruto", value: "648 k EUR", detail: "Medida gobernada" },
-  { label: "Tasa devolucion", value: "7,6 %", detail: "Sobre ventas netas" },
-  { label: "Clientes en riesgo", value: "94", detail: "Score de reactivacion" },
-];
 
 const customers: CustomerRisk[] = [
   {
@@ -69,7 +66,27 @@ const customers: CustomerRisk[] = [
 ];
 
 function App() {
-  return <FrasoHomeApp kpis={kpis} customers={customers} onAddToCampaign={addToCampaign} />;
+  const [channel, setChannel] = useState("TODOS");
+  const [category, setCategory] = useState("TODAS");
+  const kpiQuery = frasohomeKpis({ category, channel });
+  const { data, isLoading, error } = useSemanticModelQuery({
+    connection: kpiQuery.connection,
+    query: kpiQuery.query,
+    bypassCache: true,
+  });
+  const kpis = buildKpis(data, isLoading, error);
+
+  return (
+    <FrasoHomeApp
+      category={category}
+      channel={channel}
+      kpis={kpis}
+      customers={customers}
+      onAddToCampaign={addToCampaign}
+      onCategoryChange={setCategory}
+      onChannelChange={setChannel}
+    />
+  );
 }
 
 async function addToCampaign(customer: CustomerRisk) {
@@ -100,6 +117,74 @@ function suggestOffer(customer: CustomerRisk) {
   if (customer.categoria_preferida === "Iluminacion") return "Pack iluminacion con envio gratuito";
   if (customer.categoria_preferida === "Textil hogar") return "Renovacion textil con descuento VIP";
   return "Campania de reactivacion personalizada";
+}
+
+function buildKpis(
+  data: ReturnType<typeof useSemanticModelQuery>["data"],
+  isLoading: boolean,
+  error: Error | undefined,
+) {
+  const unavailable = error ? "Error" : isLoading ? "..." : "N/D";
+  const row = data?.status === "success" ? data.table.rows[0] : undefined;
+  const columns = data?.status === "success" ? data.table.columns.map((column) => column.name) : [];
+
+  function valueFor(columnName: string) {
+    if (!row) return undefined;
+    const index = columns.indexOf(columnName);
+    return index >= 0 ? row[index] : undefined;
+  }
+
+  const ventasNetas = asNumber(valueFor(KPI_COLUMNS.ventasNetas));
+  const margenBruto = asNumber(valueFor(KPI_COLUMNS.margenBruto));
+  const tasaDevolucion = asNumber(valueFor(KPI_COLUMNS.tasaDevolucion));
+  const clientesEnRiesgo = asNumber(valueFor(KPI_COLUMNS.clientesEnRiesgo));
+
+  return [
+    {
+      label: "Ventas netas",
+      value: ventasNetas == null ? unavailable : formatCompactCurrency(ventasNetas),
+      detail: "Modelo semantico",
+    },
+    {
+      label: "Margen bruto",
+      value: margenBruto == null ? unavailable : formatCompactCurrency(margenBruto),
+      detail: "Medida gobernada",
+    },
+    {
+      label: "Tasa devolucion",
+      value: tasaDevolucion == null ? unavailable : formatPercentValue(tasaDevolucion),
+      detail: "Sobre ventas netas",
+    },
+    {
+      label: "Clientes en riesgo",
+      value: clientesEnRiesgo == null ? unavailable : formatInteger(clientesEnRiesgo),
+      detail: "Score de reactivacion",
+    },
+  ];
+}
+
+function asNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function formatCompactCurrency(value: number) {
+  return new Intl.NumberFormat("es-ES", {
+    currency: "EUR",
+    maximumFractionDigits: 2,
+    notation: "compact",
+    style: "currency",
+  }).format(value);
+}
+
+function formatPercentValue(value: number) {
+  return new Intl.NumberFormat("es-ES", {
+    maximumFractionDigits: 1,
+    style: "percent",
+  }).format(value);
+}
+
+function formatInteger(value: number) {
+  return new Intl.NumberFormat("es-ES", { maximumFractionDigits: 0 }).format(value);
 }
 
 export default App;
