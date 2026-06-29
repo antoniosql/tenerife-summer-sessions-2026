@@ -177,14 +177,16 @@ Despues borra o deja comentada esta celda temporal.
 
 ## 5. Importar notebooks
 
-Crear cuatro notebooks en Fabric y pegar/importar el contenido:
+Crear cuatro notebooks en Fabric importando los ficheros:
 
 ```text
-notebooks/00_setup_fabric.py
-notebooks/01_bronze_ingesta_gx.py
-notebooks/02_silver_gold_ai_quality.py
-notebooks/03_features_scoring_semantic.py
+notebooks/00_setup_fabric.ipynb
+notebooks/01_bronze_ingesta_gx.ipynb
+notebooks/02_silver_gold_ai_quality.ipynb
+notebooks/03_features_scoring_semantic.ipynb
 ```
+
+Los `.py` con el mismo nombre contienen las mismas celdas y sirven como fuente versionable o respaldo para copiar/pegar manualmente.
 
 Para cada notebook:
 
@@ -532,4 +534,3 @@ No empieces la grabacion hasta poder marcar esto:
 - [ ] Data Agent responde los 3 prompts.
 - [ ] Rayfin/App o plan B visual esta preparado.
 - [ ] Tienes capturas o pestañas abiertas por si algo tarda.
-

@@ -91,7 +91,7 @@ gold_cliente_score
 data/raw_csv/                 Datos crudos de FraSoHome
 sesion/                       Guion, resumen y presentacion
 src/frasohome_fabric/         Codigo PySpark reutilizable para Fabric
-notebooks/                    Notebooks Fabric en formato .py
+notebooks/                    Notebooks Fabric .ipynb y fuentes .py equivalentes
 sql/                          Consultas de validacion para SQL endpoint
 semantic_model/               Medidas DAX sugeridas
 data_agent/                   Instrucciones y respuestas esperadas del agente
@@ -198,14 +198,16 @@ Adjunta ese Environment y el Lakehouse a todos los notebooks.
 
 ### 5. Importar los notebooks
 
-Crea cuatro notebooks en Fabric a partir de:
+Crea cuatro notebooks en Fabric importando estos `.ipynb`:
 
 ```text
-notebooks/00_setup_fabric.py
-notebooks/01_bronze_ingesta_gx.py
-notebooks/02_silver_gold_ai_quality.py
-notebooks/03_features_scoring_semantic.py
+notebooks/00_setup_fabric.ipynb
+notebooks/01_bronze_ingesta_gx.ipynb
+notebooks/02_silver_gold_ai_quality.ipynb
+notebooks/03_features_scoring_semantic.ipynb
 ```
+
+Los `.py` con el mismo nombre son la fuente editable equivalente y se mantienen para revisar cambios en git.
 
 Ejecutalos en este orden:
 

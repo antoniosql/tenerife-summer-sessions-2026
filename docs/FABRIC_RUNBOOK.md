@@ -68,12 +68,14 @@ Files/
 
 ## 3. Importar notebooks
 
-Importar o copiar el contenido de estos notebooks en Fabric:
+Importar estos notebooks en Fabric:
 
-1. `notebooks/00_setup_fabric.py`
-2. `notebooks/01_bronze_ingesta_gx.py`
-3. `notebooks/02_silver_gold_ai_quality.py`
-4. `notebooks/03_features_scoring_semantic.py`
+1. `notebooks/00_setup_fabric.ipynb`
+2. `notebooks/01_bronze_ingesta_gx.ipynb`
+3. `notebooks/02_silver_gold_ai_quality.ipynb`
+4. `notebooks/03_features_scoring_semantic.ipynb`
+
+Los `.py` equivalentes quedan como fuente versionable y como respaldo si prefieres copiar celdas manualmente.
 
 Todos los notebooks asumen que existe este path:
 
