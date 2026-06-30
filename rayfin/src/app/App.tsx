@@ -9,6 +9,7 @@ type Kpi = {
 
 type CustomerRisk = {
   customer_id: string;
+  canal: "POS" | "ONLINE";
   score: number;
   recencia_dias: number;
   gasto_total: number;
@@ -17,20 +18,33 @@ type CustomerRisk = {
 };
 
 type Props = {
+  category: string;
+  channel: string;
   kpis: Kpi[];
   customers: CustomerRisk[];
+  customersError?: Error;
+  customersLoading: boolean;
   onAddToCampaign: (customer: CustomerRisk) => Promise<void>;
+  onCategoryChange: (category: string) => void;
+  onChannelChange: (channel: string) => void;
 };
 
-export function App({ kpis, customers, onAddToCampaign }: Props) {
-  const [channel, setChannel] = useState("TODOS");
-  const [category, setCategory] = useState("TODAS");
+export function App({
+  category,
+  channel,
+  kpis,
+  customers,
+  customersError,
+  customersLoading,
+  onAddToCampaign,
+  onCategoryChange,
+  onChannelChange,
+}: Props) {
   const [selected, setSelected] = useState<string[]>([]);
 
-  const visibleCustomers = useMemo(
-    () => customers.slice().sort((a, b) => a.score - b.score || b.recencia_dias - a.recencia_dias),
-    [customers],
-  );
+  const visibleCustomers = useMemo(() => {
+    return [...customers].sort((a, b) => a.score - b.score || b.recencia_dias - a.recencia_dias);
+  }, [customers]);
 
   async function add(customer: CustomerRisk) {
     await onAddToCampaign(customer);
@@ -46,12 +60,12 @@ export function App({ kpis, customers, onAddToCampaign }: Props) {
         </div>
         <div className="filters" aria-label="Filtros">
           <Filter size={18} />
-          <select value={channel} onChange={(event) => setChannel(event.target.value)}>
+          <select aria-label="Canal" value={channel} onChange={(event) => onChannelChange(event.target.value)}>
             <option>TODOS</option>
             <option>POS</option>
             <option>ONLINE</option>
           </select>
-          <select value={category} onChange={(event) => setCategory(event.target.value)}>
+          <select aria-label="Categoria" value={category} onChange={(event) => onCategoryChange(event.target.value)}>
             <option>TODAS</option>
             <option>Decoracion</option>
             <option>Iluminacion</option>
@@ -80,6 +94,8 @@ export function App({ kpis, customers, onAddToCampaign }: Props) {
           <thead>
             <tr>
               <th>Cliente</th>
+              <th>Canal</th>
+              <th>Categoria</th>
               <th>Score</th>
               <th>Recencia</th>
               <th>Gasto</th>
@@ -88,11 +104,23 @@ export function App({ kpis, customers, onAddToCampaign }: Props) {
             </tr>
           </thead>
           <tbody>
-            {visibleCustomers.map((customer) => {
+            {customersLoading ? (
+              <tr>
+                <td colSpan={8}>Cargando clientes...</td>
+              </tr>
+            ) : null}
+            {!customersLoading && customersError ? (
+              <tr>
+                <td colSpan={8}>No se pudieron cargar los clientes del modelo semantico.</td>
+              </tr>
+            ) : null}
+            {!customersLoading && !customersError ? visibleCustomers.map((customer) => {
               const done = selected.includes(customer.customer_id);
               return (
                 <tr key={customer.customer_id}>
                   <td>{customer.customer_id}</td>
+                  <td>{customer.canal}</td>
+                  <td>{customer.categoria_preferida ?? "Sin categoria"}</td>
                   <td>{customer.score}</td>
                   <td>{customer.recencia_dias} dias</td>
                   <td>{formatCurrency(customer.gasto_total)}</td>
@@ -100,12 +128,17 @@ export function App({ kpis, customers, onAddToCampaign }: Props) {
                   <td>
                     <button type="button" onClick={() => add(customer)} disabled={done}>
                       {done ? <CheckCircle2 size={18} /> : <PlusCircle size={18} />}
-                      {done ? "En campania" : "Anadir"}
+                      {done ? "En campaña" : "Añadir"}
                     </button>
                   </td>
                 </tr>
               );
-            })}
+            }) : null}
+            {!customersLoading && !customersError && visibleCustomers.length === 0 ? (
+              <tr>
+                <td colSpan={8}>No hay clientes para los filtros seleccionados.</td>
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </section>
@@ -120,4 +153,3 @@ function formatCurrency(value: number) {
 function formatPercent(value: number) {
   return new Intl.NumberFormat("es-ES", { style: "percent", maximumFractionDigits: 1 }).format(value);
 }
-

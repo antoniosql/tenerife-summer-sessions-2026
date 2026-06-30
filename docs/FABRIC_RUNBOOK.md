@@ -188,20 +188,42 @@ Prompts de grabacion:
 
 ## 8. Rayfin / Fabric App
 
-El codigo fuente esta en:
+El origen actualizado de la Fabric App desplegada como `frasohome-explorer` esta en:
 
 ```text
 rayfin/
 ```
 
-Este repo no ejecuta `rayfin up` ni crea despliegues.
+Este repo no ejecuta `rayfin up` ni crea despliegues durante la preparacion de codigo. El directorio `rayfin/` contiene el proyecto reproducible y sus instrucciones:
 
-Uso previsto:
+```text
+rayfin/README.md
+```
 
-- `rayfin/src/data/ReactivacionCliente.ts`: entidad de write-back para acciones de reactivacion.
-- `rayfin/src/app/App.tsx`: pantalla de exploracion para KPIs y clientes en riesgo.
-- Conectar las lecturas a `gold_fact_transacciones`, `gold_cliente_score` y `gold_producto_features`.
-- Conectar el boton de accion a la entidad `ReactivacionCliente`.
+Piezas principales:
+
+- `rayfin/fabric.yaml`: alias `frasohomeModel` con `workspaceId` e `itemId` del modelo semantico.
+- `rayfin/rayfin/rayfin.yml`: configuracion del item Fabric App, auth, data y static hosting.
+- `rayfin/rayfin/data/ReactivacionCliente.ts`: entidad de write-back para acciones de reactivacion.
+- `rayfin/src/queries/frasohome/kpis.dax`: KPIs `Ventas netas`, `Margen bruto`, `Tasa devolucion` y `Clientes en riesgo`.
+- `rayfin/src/queries/frasohome/risk-customers.dax`: top 25 clientes en riesgo filtrados por canal y categoria.
+- `rayfin/src/App.tsx`: ejecucion de consultas y alta de `ReactivacionCliente`.
+
+Comandos de validacion local, sin desplegar:
+
+```powershell
+cd rayfin
+npm install
+npm run test
+npm run build
+```
+
+Comandos de despliegue, solo cuando quieras crear o actualizar el item Fabric App en el workspace destino:
+
+```powershell
+npx rayfin up --workspace-id <workspace-guid> --dry-run
+npx rayfin up --workspace-id <workspace-guid>
+```
 
 ## 9. Checklist de grabacion
 

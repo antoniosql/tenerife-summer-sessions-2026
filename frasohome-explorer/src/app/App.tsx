@@ -22,6 +22,8 @@ type Props = {
   channel: string;
   kpis: Kpi[];
   customers: CustomerRisk[];
+  customersError?: Error;
+  customersLoading: boolean;
   onAddToCampaign: (customer: CustomerRisk) => Promise<void>;
   onCategoryChange: (category: string) => void;
   onChannelChange: (channel: string) => void;
@@ -32,6 +34,8 @@ export function App({
   channel,
   kpis,
   customers,
+  customersError,
+  customersLoading,
   onAddToCampaign,
   onCategoryChange,
   onChannelChange,
@@ -39,11 +43,8 @@ export function App({
   const [selected, setSelected] = useState<string[]>([]);
 
   const visibleCustomers = useMemo(() => {
-    return customers
-      .filter((customer) => channel === "TODOS" || customer.canal === channel)
-      .filter((customer) => category === "TODAS" || customer.categoria_preferida === category)
-      .sort((a, b) => a.score - b.score || b.recencia_dias - a.recencia_dias);
-  }, [category, channel, customers]);
+    return [...customers].sort((a, b) => a.score - b.score || b.recencia_dias - a.recencia_dias);
+  }, [customers]);
 
   async function add(customer: CustomerRisk) {
     await onAddToCampaign(customer);
@@ -103,7 +104,17 @@ export function App({
             </tr>
           </thead>
           <tbody>
-            {visibleCustomers.map((customer) => {
+            {customersLoading ? (
+              <tr>
+                <td colSpan={8}>Cargando clientes...</td>
+              </tr>
+            ) : null}
+            {!customersLoading && customersError ? (
+              <tr>
+                <td colSpan={8}>No se pudieron cargar los clientes del modelo semantico.</td>
+              </tr>
+            ) : null}
+            {!customersLoading && !customersError ? visibleCustomers.map((customer) => {
               const done = selected.includes(customer.customer_id);
               return (
                 <tr key={customer.customer_id}>
@@ -117,13 +128,13 @@ export function App({
                   <td>
                     <button type="button" onClick={() => add(customer)} disabled={done}>
                       {done ? <CheckCircle2 size={18} /> : <PlusCircle size={18} />}
-                      {done ? "En campaña" : "Anadir"}
+                      {done ? "En campaña" : "Añadir"}
                     </button>
                   </td>
                 </tr>
               );
-            })}
-            {visibleCustomers.length === 0 ? (
+            }) : null}
+            {!customersLoading && !customersError && visibleCustomers.length === 0 ? (
               <tr>
                 <td colSpan={8}>No hay clientes para los filtros seleccionados.</td>
               </tr>

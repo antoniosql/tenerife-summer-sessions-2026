@@ -1,0 +1,80 @@
+EVALUATE
+SELECTCOLUMNS(
+    TOPN(
+        25,
+        FILTER(
+            ADDCOLUMNS(
+                'gold_cliente_score',
+                "__MovimientosFiltrados",
+                    CALCULATE(
+                        COUNTROWS('gold_fact_transacciones'),
+                        TREATAS({ 'gold_cliente_score'[customer_id] }, 'gold_fact_transacciones'[customer_id]),
+                        __CHANNEL_FILTER__,
+                        __CATEGORY_FILTER__
+                    ),
+                "__Canal",
+                    CALCULATE(
+                        CONCATENATEX(
+                            TOPN(
+                                1,
+                                SUMMARIZE(
+                                    'gold_fact_transacciones',
+                                    'gold_fact_transacciones'[canal_movimiento],
+                                    "__Movimientos", COUNTROWS('gold_fact_transacciones')
+                                ),
+                                [__Movimientos],
+                                DESC,
+                                'gold_fact_transacciones'[canal_movimiento],
+                                ASC
+                            ),
+                            'gold_fact_transacciones'[canal_movimiento],
+                            ""
+                        ),
+                        TREATAS({ 'gold_cliente_score'[customer_id] }, 'gold_fact_transacciones'[customer_id]),
+                        __CHANNEL_FILTER__,
+                        __CATEGORY_FILTER__
+                    ),
+                "__CategoriaPreferida",
+                    CALCULATE(
+                        CONCATENATEX(
+                            TOPN(
+                                1,
+                                SUMMARIZE(
+                                    'gold_fact_transacciones',
+                                    'gold_fact_transacciones'[categoria],
+                                    "__Ventas", CALCULATE(
+                                        SUM('gold_fact_transacciones'[importe_abs]),
+                                        'gold_fact_transacciones'[tipo_movimiento] = "VENTA"
+                                    )
+                                ),
+                                [__Ventas],
+                                DESC,
+                                'gold_fact_transacciones'[categoria],
+                                ASC
+                            ),
+                            'gold_fact_transacciones'[categoria],
+                            ""
+                        ),
+                        TREATAS({ 'gold_cliente_score'[customer_id] }, 'gold_fact_transacciones'[customer_id]),
+                        __CHANNEL_FILTER__,
+                        __CATEGORY_FILTER__
+                    )
+            ),
+            'gold_cliente_score'[riesgo_fuga] = TRUE()
+                && [__MovimientosFiltrados] > 0
+        ),
+        'gold_cliente_score'[score],
+        ASC,
+        'gold_cliente_score'[recencia_dias],
+        DESC,
+        'gold_cliente_score'[gasto_total],
+        DESC
+    ),
+    "customer_id", 'gold_cliente_score'[customer_id],
+    "canal", [__Canal],
+    "score", 'gold_cliente_score'[score],
+    "recencia_dias", 'gold_cliente_score'[recencia_dias],
+    "gasto_total", 'gold_cliente_score'[gasto_total],
+    "tasa_devolucion_cliente", 'gold_cliente_score'[tasa_devolucion_cliente],
+    "categoria_preferida", [__CategoriaPreferida]
+)

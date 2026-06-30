@@ -296,28 +296,37 @@ para comparar la forma esperada de las respuestas.
 
 ### 9. Opcional: Rayfin / Fabric App
 
-El codigo de referencia esta en:
+El origen actualizado de la Fabric App desplegada como `frasohome-explorer` esta en:
 
 ```text
 rayfin/
 ```
 
-Contiene:
+Contiene una app Vite/React completa con autenticacion embebida en Fabric, consultas al modelo semantico y write-back Rayfin:
 
 ```text
-rayfin/src/data/ReactivacionCliente.ts
+rayfin/fabric.yaml
+rayfin/rayfin/rayfin.yml
+rayfin/rayfin/data/ReactivacionCliente.ts
+rayfin/src/App.tsx
 rayfin/src/app/App.tsx
-rayfin/src/app/styles.css
+rayfin/src/queries/frasohome/
 ```
 
 La app esta pensada para:
 
-- Leer KPIs y clientes en riesgo desde gold/modelo semantico.
+- Leer KPIs y clientes en riesgo desde el modelo semantico `frasohomeModel`.
 - Mostrar filtros por canal y categoria.
 - Permitir anadir clientes a una campania de reactivacion.
 - Escribir la accion en la entidad `ReactivacionCliente`.
 
-No ejecutes comandos de despliegue sin revisar antes la disponibilidad de Rayfin/Fabric Apps en tu tenant.
+Pasos detallados, requisitos y consultas DAX:
+
+```text
+rayfin/README.md
+```
+
+No ejecutes comandos de despliegue sin revisar antes la disponibilidad de Rayfin/Fabric Apps en tu tenant y sin apuntar `fabric.yaml` al modelo semantico correcto.
 
 
 
